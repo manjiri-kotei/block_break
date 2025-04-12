@@ -3,6 +3,7 @@ import random
 
 # 初期化
 pygame.init()
+game_state = "PLAYING"  # 状態: "PLAYING", "GAMEOVER", "CLEAR"
 
 # 画面設定
 WIDTH, HEIGHT = 800, 600
@@ -61,8 +62,9 @@ while running:
         ball_speed[1] = -ball_speed[1]
     if ball.bottom >= HEIGHT:
         # ゲームオーバー（ボールが下に落ちた）
-        ball.center = (WIDTH // 2, HEIGHT // 2)
-        ball_speed = [5, -5]
+        #ball.center = (WIDTH // 2, HEIGHT // 2)
+        #ball_speed = [5, -5]
+        game_state = "GAMEOVER"
 
     # パドルとの衝突
     if ball.colliderect(paddle):
@@ -75,6 +77,13 @@ while running:
             ball_speed[1] = -ball_speed[1]
             score += 10 #　ブロックを壊すたびにスコアを10増やす
             break
+        if len(blocks) == 0:
+            game_state = "CLEAR" # すべてのブロックを壊した
+
+    # Cボタンを押したらすべてのブロックを消失（テスト用）
+    if keys[pygame.K_c]:
+        blocks.clear()
+        game_state = "CLEAR"
 
     # 描画
     screen.fill(BLACK)
@@ -84,6 +93,13 @@ while running:
     pygame.draw.ellipse(screen, RED, ball)
     for block in blocks:
         pygame.draw.rect(screen, WHITE, block)
+    if game_state == "GAMEOVER":
+        game_over_text = font.render("GAME OVER", True, WHITE)
+        screen.blit(game_over_text, (WIDTH // 2 - 50, HEIGHT // 2 - 20))
+    elif game_state == "CLEAR":
+        clear_text = font.render("CLEAR!", True, WHITE)
+        screen.blit(clear_text, (WIDTH // 2 - 50, HEIGHT // 2 - 20))
+
 
     # 画面更新
     pygame.display.flip()
