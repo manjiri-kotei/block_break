@@ -34,6 +34,8 @@ for row in range(5):
         blocks.append(block)
 
 # ゲームループ
+score = 0
+font = pygame.font.Font(None, 36)  # フォント設定（サイズ36）
 clock = pygame.time.Clock()
 running = True
 while running:
@@ -71,11 +73,14 @@ while running:
         if ball.colliderect(block):
             blocks.remove(block)
             ball_speed[1] = -ball_speed[1]
+            score += 10 #　ブロックを壊すたびにスコアを10増やす
             break
 
     # 描画
     screen.fill(BLACK)
     pygame.draw.rect(screen, BLUE, paddle)
+    score_text = font.render(f"Score: {score}", True, WHITE)  # スコアを描画
+    screen.blit(score_text, (10, 10)) # スコアの位置
     pygame.draw.ellipse(screen, RED, ball)
     for block in blocks:
         pygame.draw.rect(screen, WHITE, block)
