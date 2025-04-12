@@ -44,6 +44,18 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r and(game_state == "GAMEOVER" or game_state == "CLEAR"):
+                # ゲームオーバーまたはクリア時にRキーでリスタート
+                ball.center = (WIDTH // 2, HEIGHT // 2)
+                ball_speed = [5, -5]
+                blocks = []
+                for row in range(5):
+                    for col in range(WIDTH // BLOCK_WIDTH):
+                        block = pygame.Rect(col * BLOCK_WIDTH, row * BLOCK_HEIGHT + 50, BLOCK_WIDTH - 2, BLOCK_HEIGHT - 2)
+                        blocks.append(block)
+                score = 0
+                game_state = "PLAYING"
 
     # パドルの移動
     keys = pygame.key.get_pressed()
@@ -53,8 +65,9 @@ while running:
         paddle.move_ip(paddle_speed, 0)
 
     # ボールの移動
-    ball.move_ip(ball_speed)
-
+    if game_state == "PLAYING":
+        ball.move_ip(ball_speed)
+    
     # 壁との衝突
     if ball.left <= 0 or ball.right >= WIDTH:
         ball_speed[0] = -ball_speed[0]
