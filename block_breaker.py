@@ -19,7 +19,7 @@ BLUE = (0, 0, 255)
 # パドルの設定
 PADDLE_WIDTH, PADDLE_HEIGHT = 100, 10
 paddle = pygame.Rect(WIDTH // 2 - PADDLE_WIDTH // 2, HEIGHT - 40, PADDLE_WIDTH, PADDLE_HEIGHT)
-paddle_speed = 5
+paddle_speed = 30  # パドルの移動速度
 
 # ボールの設定
 BALL_SIZE = 10
@@ -29,10 +29,13 @@ ball_speed = [5, -5]  # [x方向, y方向]
 # ブロックの設定
 BLOCK_WIDTH, BLOCK_HEIGHT = 60, 20
 blocks = []
+special_blocks = []  # 特殊ブロックのリスト
 for row in range(5):
     for col in range(WIDTH // BLOCK_WIDTH):
         block = pygame.Rect(col * BLOCK_WIDTH, row * BLOCK_HEIGHT + 50, BLOCK_WIDTH - 2, BLOCK_HEIGHT - 2)
         blocks.append(block)
+        if random.random() < 0.2: # 20%の確率で特殊ブロックを追加
+            special_blocks.append(block)
 
 # ゲームループ
 score = 0
@@ -89,9 +92,15 @@ while running:
             blocks.remove(block)
             ball_speed[1] = -ball_speed[1]
             score += 10 #　ブロックを壊すたびにスコアを10増やす
+            if block in special_blocks: # 特殊ブロックに当たった場合
+                paddle.width  = max(50, paddle.width - 20)  # パドルを小さく（最小50）
             break
         if len(blocks) == 0:
             game_state = "CLEAR" # すべてのブロックを壊した
+
+    if score > 0 and score %50 == 0: # スコアが50の倍数のとき、ボールの速度を上げる
+        ball_speed[0] *= 1.005
+        ball_speed[1] *= 1.005
 
     # Cボタンを押したらすべてのブロックを消失（テスト用）
     if keys[pygame.K_c]:
@@ -105,13 +114,16 @@ while running:
     screen.blit(score_text, (10, 10)) # スコアの位置
     pygame.draw.ellipse(screen, RED, ball)
     for block in blocks:
-        pygame.draw.rect(screen, WHITE, block)
-    if game_state == "GAMEOVER":
-        game_over_text = font.render("GAME OVER", True, WHITE)
-        screen.blit(game_over_text, (WIDTH // 2 - 50, HEIGHT // 2 - 20))
-    elif game_state == "CLEAR":
-        clear_text = font.render("CLEAR!", True, WHITE)
-        screen.blit(clear_text, (WIDTH // 2 - 50, HEIGHT // 2 - 20))
+        if block in special_blocks:
+            pygame.draw.rect(screen, RED, block)
+        else:
+            pygame.draw.rect(screen, WHITE, block)
+        if game_state == "GAMEOVER":
+            game_over_text = font.render("GAME OVER", True, WHITE)
+            screen.blit(game_over_text, (WIDTH // 2 - 50, HEIGHT // 2 - 20))
+        elif game_state == "CLEAR":
+            clear_text = font.render("CLEAR!", True, WHITE)
+            screen.blit(clear_text, (WIDTH // 2 - 50, HEIGHT // 2 - 20))
 
 
     # 画面更新
