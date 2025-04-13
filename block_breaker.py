@@ -3,6 +3,11 @@ import random
 
 # 初期化
 pygame.init()
+pygame.mixer.init()  # 音声モジュールの初期化
+pygame.mixer.music.load("maou_bgm_healing15.mp3")  # BGMの読み込み
+pygame.mixer.music.set_volume(0.5)  # 音量設定（0.0から1.0の範囲）
+pygame.mixer.music.play(-1)  # BGMをループ再生
+hit_sound = pygame.mixer.Sound("決定ボタンを押す34.mp3")  # 衝突音の読み込み
 game_state = "PLAYING"  # 状態: "PLAYING", "GAMEOVER", "CLEAR"
 
 # 画面設定
@@ -17,7 +22,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
 # パドルの設定
-PADDLE_WIDTH, PADDLE_HEIGHT = 100, 10
+PADDLE_WIDTH, PADDLE_HEIGHT = 800, 10
 paddle = pygame.Rect(WIDTH // 2 - PADDLE_WIDTH // 2, HEIGHT - 40, PADDLE_WIDTH, PADDLE_HEIGHT)
 paddle_speed = 30  # パドルの移動速度
 
@@ -92,6 +97,7 @@ while running:
             blocks.remove(block)
             ball_speed[1] = -ball_speed[1]
             score += 10 #　ブロックを壊すたびにスコアを10増やす
+            hit_sound.play()  # 衝突音を再生
             if block in special_blocks: # 特殊ブロックに当たった場合
                 paddle.width  = max(50, paddle.width - 20)  # パドルを小さく（最小50）
             break
